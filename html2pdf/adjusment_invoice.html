@@ -1,0 +1,620 @@
+<html style="overflow: hidden;" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8"/>
+    <style>
+        .view_container {
+            font-family: Tahoma,sans-serif;
+            font-size: 9.0pt;
+        }
+
+        .view_container .page-landscape-margin-narrow {
+            width: 100%;
+            margin: 1mm 0 0 0;
+        }
+
+        .view_container .page-content {
+            width: 100%;
+        }
+
+        .view_container table {
+            font-family: Tahoma,sans-serif;
+            border-collapse: collapse;
+            font-size: 8.0pt;
+            width: 100%;
+            color: black;
+        }
+
+        .view_container .header_text {
+            font-family: Tahoma,sans-serif;
+            font-weight: bold;
+            font-size: 10.0pt;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .view_container .header_text_arial {
+            font-family: Tahoma,sans-serif;
+        }
+
+        .view_container .tab {
+            margin-top: 10px;
+        }
+
+        .view_container .tab tr td {
+            border: 1px solid black;
+        }
+
+        .view_container .tab1 {
+            color: black;
+            font-size: 8.0pt;
+        }
+
+        .view_container .tab1 td {
+            padding: 3px;
+        }
+
+        .view_container .tab2 {
+            color: black;
+            font-size: 8.0pt;
+            line-height: 13px;
+        }
+
+        .view_container .tab2 td {
+            padding: 3px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .view_container .cell-podpis {
+            vertical-align: top;
+            font-size: 7.0pt;
+            text-align: center;
+            color: black;
+        }
+
+        .view_container .sum-words {
+            font-size: 9.0pt;
+            text-align: right;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .view_container .fio {
+            vertical-align: bottom;
+            text-align: center;
+            font-size: 8pt;
+        }
+
+        .view_container .text_m {
+            width: 300px;
+            color: black;
+            text-align: right;
+            font-family: Tahoma,sans-serif;
+            font-size: 7pt;
+        }
+
+        .view_container .cell-value {
+            font-size: 8.0pt;
+            border-bottom: 1px solid black;
+            padding: 3px;
+            text-align: left;
+        }
+
+        .view_container .cell-name {
+            font-size: 8.0pt;
+            white-space: nowrap;
+            color: black;
+            padding: 3px;
+        }
+
+        .view_container .border-cell-podpis {
+            border-top: 1px solid black;
+            font-size: 7.0pt;
+            text-align: center;
+            color: black;
+            vertical-align: top;
+        }
+
+        .view_container .cell-primechanie {
+            padding-left: 5px;
+            word-wrap: break-word;
+        }
+
+        .view_container .border-cell-money {
+            vertical-align: top;
+            border-top: 1pt solid black;
+            border-left: 1pt solid black;
+            border-right: 1pt solid black;
+            font-size: 8.0pt;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        /*Серые цвета при отображении*/
+        @media SCREEN {
+            .view_container .text_m {
+                color: #c0c0c0;
+            }
+
+            .view_container .cell-value {
+                border-bottom: 1px solid #dddddd;
+            }
+
+            .view_container .cell-name {
+                color: #808080;
+            }
+
+            .view_container .cell-primechanie {
+                color: #808080;
+            }
+
+            .view_container .tab tr td {
+                border: 1px solid #c0c0c0;
+            }
+
+            .view_container .tab2 {
+                color: #999999;
+            }
+
+            .view_container .border-cell-podpis {
+                border-top: 1px solid #dddddd;
+                color: #808080;
+            }
+
+            .view_container .border-cell-money {
+                border-top: 1pt solid #c0c0c0;
+                border-left: 1pt solid #c0c0c0;
+                border-right: 1pt solid #c0c0c0;
+            }
+
+            .view_container .cell-podpis {
+                color: #808080;
+            }
+        }
+
+        /*Показ изменений*/
+        .view_container .change {
+            position: relative;
+            background-color: yellow;
+        }
+
+        .view_container .change em {
+            display: none;
+        }
+
+        .view_container .change:hover em {
+            display: block;
+            position: absolute;
+            z-index: 1;
+            border: 1pt solid red;
+            background-color: white;
+            font-style: normal;
+            font-weight: normal;
+            padding: 2px 2px 2px 3px;
+            bottom: -23px;
+            left: -36px;
+            white-space: nowrap;
+            -webkit-box-shadow: 0 0 2px #000; /* красивости в виде тени */
+            -moz-box-shadow: 0 0 2px #000;
+            box-shadow: 0 0 2px #000;
+        }
+
+        .view_container .hover {
+            display: block;
+            position: absolute;
+            z-index: 1;
+            border: 1pt solid red;
+            background-color: white;
+            font-style: normal;
+            font-weight: normal;
+            padding: 2px 2px 2px 3px;
+            top: 13px;
+            left: -36px;
+            white-space: nowrap;
+            box-shadow: 0 0 2px #000;
+        }
+
+        /*Общее*/
+        .view_container .explanation {
+            font-size: 8pt;
+        }
+
+        .view_container .bold {
+            font-weight: bold;
+        }
+
+        .view_container .nowrap {
+            white-space: nowrap;
+        }
+
+        .view_container .text-right {
+            text-align: right;
+        }
+
+        .view_container .text-center {
+            text-align: center;
+        }
+
+        .view_container .text-left {
+            text-align: left;
+        }
+
+        .view_container .vertical-align-top {
+            vertical-align: top;
+        }
+
+        .view_container .vertical-align-middle {
+            vertical-align: middle;
+        }
+
+        .view_container .vertical-align-bottom {
+            vertical-align: bottom;
+        }
+
+        .view_container .italic {
+            font-style: italic;
+        }
+
+        .view_container .tab1 {
+            page-break-inside: avoid !important;
+        }
+
+        /*Доработка для печати документов по правилам бухгалтерии*/
+        .view_container .table-begin .tr-end td span,
+        .view_container .table-end .tr-begin td span,
+        .view_container .table-end thead td span {
+            display: block;
+        }
+
+        .view_container .table-begin .tr-end td,
+        .view_container .table-end .tr-begin td,
+        .view_container .table-end thead td {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border-bottom: none !important;
+            border-top: none !important;
+            line-height: 0 !important;
+            opacity: 0 !important;
+            height: 0 !important;
+            /* для ie */
+            -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+            filter: alpha(opacity=0);
+            /* правит косяк конвертера с границами при разрыве страницы */
+            border-color: rgba(255, 255, 255, 0);
+            border-color: #fff \9;
+        }
+
+        .view_container .table-end {
+            margin-top: 0 !important;
+        }
+
+        @media PRINT {
+            .view_container .no-break-div {
+                page-break-inside: avoid;
+                position: relative;
+                display: run-in;
+            }
+
+            /* костыль для конвертера в pdf без .view_container т.к. договоры без этого класса */
+            .pdffacsimile {
+                position: relative !important;
+            }
+        }
+    </style>
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+        }
+
+        .view_container .page-landscape-margin-narrow {
+            margin: 0;
+        }
+
+        .view_container .table-begin .tr-end td, .view_container .table-end thead td, .view_container .table-end .tr-begin
+        td {
+            opacity: 0 !important;
+            line-height: 0 !important;
+            /* для ie */
+            -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+            filter: alpha(opacity=0);
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+<div class="view_container">
+    <div id="sds-presentation-paging"></div>
+    <div class="page-landscape-margin-narrow">
+        <div class="page-content">
+            <table align="center">
+                <tbody>
+                <tr>
+                    <td class="header_text">КОРРЕКТИРОВОЧНЫЙ СЧЕТ-ФАКТУРА № <th:block th:text="${номерКСчФ}">-</th:block>
+                        от <th:block th:text="${датаКСчФ}">-</th:block><br/>
+                        <span style="font-weight: normal"> ИСПРАВЛЕНИЕ КОРРЕКТИРОВОЧНОГО СЧЕТА-ФАКТУРЫ №
+                            <th:block th:text="${номИспрКСчФ}">-</th:block>
+                            от <th:block th:text="${датаИспрКСчФ}">-</th:block> </span><br/>
+                        <span style="font-weight: normal" th:text="${sfHeader}">-</span></td>
+                    <td class="text_m" style="white-space: nowrap;">Приложение № 2<br/>
+                        к постановлению Правительства<br/>
+                        Российской Федерации<br/>
+                        от 26 декабря 2011 № 1137<br/>
+                        (в ред. Постановления Правительства РФ от 19.08.2017 № 981)
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <table>
+                <tbody>
+                <tr>
+                    <td>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td class="cell-name" width="50px">Продавец:
+                                </td>
+                                <td class="cell-value bold" th:text="${seller}">
+                                    -
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td width="15"></td>
+                                <td class="cell-name" width="30px">Адрес:</td>
+                                <td class="cell-value" th:text="${addressSeller}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td width="15"></td>
+                                <td class="cell-name" width="100px">ИНН/КПП продавца:</td>
+                                <td class="cell-value">
+                                    <th:block th:text="${sellerInn}"></th:block>/<th:block th:text="${sellerKpp}"></th:block>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div style="margin-top:2mm;"></div>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td class="cell-name" width="60px">Покупатель:
+                                </td>
+                                <td class="cell-value bold" th:text="${buyer}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td width="15"></td>
+                                <td class="cell-name" width="40px">Адрес:</td>
+                                <td class="cell-value" th:text="${addressBuyer}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td width="15"></td>
+                                <td class="cell-name" width="120px">ИНН/КПП покупателя:
+                                </td>
+                                <td class="cell-value">
+                                    <th:block th:text="${buyerInn}"></th:block>/<th:block th:text="${buyerKpp}"></th:block></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <table style="margin-top:2mm;">
+                            <tbody>
+                            <tr>
+                                <td class="cell-name" width="140px">Валюта: наименование, код</td>
+                                <td class="cell-value" th:text="${okv}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td class="cell-name" width="420px">Идентификатор государственного контракта, договора
+                                    (соглашения) (при наличии)
+                                </td>
+                                <td class="cell-value" th:text="${governmentContract}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <table>
+                <tbody>
+                <tr>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="tab " style="margin-top: 10px">
+                <thead>
+                <tr class="tab2">
+                    <td rowspan="2" width="200px">Наименование товара<br/>(описание выполненных работ,<br/>оказанных
+                        услуг),<br/>имущественного права
+                    </td>
+                    <td rowspan="2" width="190px">Показатели в связи с изменением стоимости отгруженных товаров (выполненных работ, оказанных услуг), переданных имущественных прав
+                    </td>
+                    <td colspan="2" width="20px">Единица измерения</td>
+                    <td rowspan="2" width="30px">Коли-<br/>чество (объем)</td>
+                    <td rowspan="2" width="50px">Цена (тариф) за единицу измерения</td>
+                    <td rowspan="2" width="50px">Стоимость товаров<br/>(работ, услуг), имущест­венных прав без налога -
+                        всего
+                    </td>
+                    <td rowspan="2" width="60px">В том числе сумма акциза</td>
+                    <td rowspan="2" width="10px">Налого­вая ставка</td>
+                    <td rowspan="2" width="50px">Сумма налога</td>
+                    <td rowspan="2" width="50px">Стоимость товаров<br/>(работ, услуг), имущест­венных прав с налогом -
+                        всего
+                    </td>
+                </tr>
+                <tr class="tab2">
+                    <td width="10px">код</td>
+                    <td>условное обозначение (национальное)</td>
+                </tr>
+                <tr class="tab2">
+                    <td>1</td>
+                    <td>1а</td>
+                    <td>2</td>
+                    <td>2a</td>
+                    <td>3</td>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>6</td>
+                    <td>7</td>
+                    <td>8</td>
+                    <td>9</td>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="product : ${products}">
+                    <tr class="tab1 tr-begin">
+                        <td class="text-left" style="padding-left: 26px" rowspan="4" th:text="${product.наимТов}"></td>
+                        <td class="nowrap text-center">А (до изменения)</td>
+                        <td class="nowrap text-center" th:text="${product.океитовДо}"></td>
+                        <td class="nowrap text-center" th:text="${product.уоДо}"></td>
+                        <td class="nowrap text-right" th:text="${product.колТовДо}"></td>
+                        <td class="nowrap text-right" th:text="${product.ценаТовДо}"></td>
+                        <td class="nowrap text-right" th:text="${product.стТовБезНДСДо}"></td>
+                        <td class="nowrap text-center" th:text="${product.акцизДо}"></td>
+                        <td class="nowrap text-center" th:text="${product.налСтДо}"></td>
+                        <td class="nowrap text-right" th:text="${product.сумНалДо}"></td>
+                        <td class="nowrap text-right" th:text="${product.стТовУчНалДо}"></td>
+                    </tr>
+                    <tr class="tab1 tr-begin">
+                        <td class="nowrap text-center">Б (после изменения)</td>
+                        <td class="nowrap text-center" th:text="${product.океитовПосле}"></td>
+                        <td class="nowrap text-center" th:text="${product.уоПосле}"></td>
+                        <td class="nowrap text-right" th:text="${product.колТовПосле}"></td>
+                        <td class="nowrap text-right" th:text="${product.ценаТовПосле}"></td>
+                        <td class="nowrap text-right" th:text="${product.стТовБезНДСПосле}"></td>
+                        <td class="nowrap text-center" th:text="${product.акцизПосле}"></td>
+                        <td class="nowrap text-center" th:text="${product.налСтПосле}"></td>
+                        <td class="nowrap text-right" th:text="${product.сумНалПосле}"></td>
+                        <td class="nowrap text-right" th:text="${product.стТовУчНалПосле}"></td>
+                    </tr>
+                    <tr class="tab1 tr-begin">
+                        <td class="nowrap text-center">В (увеличение)</td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-right" th:text="${product.стТовБезНДСУв}"></td>
+                        <td class="nowrap text-center" th:text="${product.акцизРазнУв}"></td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-right" th:text="${product.сумНалРазнУв}"></td>
+                        <td class="nowrap text-right" th:text="${product.стТовУчНалУв}"></td>
+                    </tr>
+                    <tr class="tab1 tr-begin">
+                        <td class="nowrap text-center">Г (уменьшение)</td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-right" th:text="${product.стТовБезНДСУм}"></td>
+                        <td class="nowrap text-center" th:text="${product.акцизРазнУм}"></td>
+                        <td class="nowrap text-center">Х</td>
+                        <td class="nowrap text-right" th:text="${product.сумНалРазнУм}"></td>
+                        <td class="nowrap text-right" th:text="${product.стТовУчНалУм}"></td>
+                    </tr>
+                </th:block>
+                <tr class="tab1 tr-end">
+                    <td class="bold text-left" colspan="6" style="padding-left: 4px">Всего увеличение (сумма строк В)</td>
+                    <td class="nowrap text-right" style="padding-right: 4px" th:text="${стТовБезНДСВсегоУв}"></td>
+                    <td class="nowrap text-center">Х</td>
+                    <td class="nowrap text-center">Х</td>
+                    <td class="nowrap text-right" style="padding-right: 4px" th:text="${сумНалУв}"></td>
+                    <td class="nowrap text-right" style="padding-right: 4px" th:text="${стТовУчНалВсегоУв}"></td>
+                </tr>
+                <tr class="tab1 tr-end">
+                    <td class="bold text-left" colspan="6" style="padding-left: 4px">Всего уменьшение (сумма строк Г)</td>
+                    <td class="nowrap text-right" style="padding-right: 4px" th:text="${стТовБезНДСВсегоУм}"></td>
+                    <td class="nowrap text-center">Х</td>
+                    <td class="nowrap text-center">Х</td>
+                    <td class="nowrap text-right" style="padding-right: 4px" th:text="${сумНалУм}"></td>
+                    <td class="nowrap text-right" style="padding-right: 4px" th:text="${стТовУчНалВсегоУм}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="no-break-div" style="margin-top: -1px">
+                <table style="margin-top: 2mm;">
+                    <tbody>
+                    <tr>
+                        <td class="cell-name" style="width: 50mm;">Руководитель организации<br/>или иное уполномоченное лицо</td>
+                        <td class="vertical-align-bottom text-center" style="width: 40mm; padding-bottom: 3px">
+                            <div class="pdffacsimile"></div>
+                        </td>
+                        <td style="width: 2mm"></td>
+                        <td class="fio" style="width: 80mm; padding-bottom: 3px" th:text="${signer}"></td>
+                        <td style="width: 8mm"></td>
+                        <td class="cell-name" style="width: 50mm;">Главный бухгалтер<br/>или иное уполномоченное лицо</td>
+                        <td style="width: 40mm"></td>
+                        <td style="width: 2mm"></td>
+                        <td class="fio" style="width: 60mm"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td class="border-cell-podpis">(подпись)</td>
+                        <td></td>
+                        <td class="border-cell-podpis">(ф.и.о.)</td>
+                        <td></td>
+                        <td></td>
+                        <td class="border-cell-podpis">(подпись)</td>
+                        <td></td>
+                        <td class="border-cell-podpis">(ф.и.о.)</td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table style="margin-top: 2mm;">
+                    <tbody>
+                    <tr>
+                        <td class="cell-name" style="width: 50mm;">Индивидуальный предприниматель<br/>или иное уполномоченное лицо</td>
+                        <td class="vertical-align-bottom text-center" style="width: 2mm; padding-bottom: 3px"></td>
+                        <td style="width: 2mm"></td>
+                        <td class="fio" style="width: 60mm; padding-bottom: 3px" th:text="${signerIp}"></td>
+                        <td style="width: 2mm"></td>
+                        <td class="fio" style="width: 70mm; padding-bottom: 3px" align="center" th:text="${regIp}"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td class="border-cell-podpis">(подпись)</td>
+                        <td></td>
+                        <td class="border-cell-podpis">(ф.и.о.)</td>
+                        <td></td>
+                        <td class="border-cell-podpis">(Реквизиты свидетельства о государственной регистрации
+                            индивидуального предпринимателя)
+                        </td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

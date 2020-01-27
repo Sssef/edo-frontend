@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<th:block th:fragment="listDocs">
+    <ul class="st-docs-list">
+        <li class="document-header">
+            <ul class="document__list">
+                <li class="st-col st-col-5">
+                    Юр Лицо
+                </li>
+                <li class="st-col st-col-5">
+                    Документ
+                </li>
+                <li class="st-col st-col-5">
+                    Контрагент
+                </li>
+                <li class="st-col st-col-3">
+                    Статус
+                </li>
+                <li class="st-col st-col-3">
+                    Создан
+                </li>
+                <li class="st-col st-col-5">
+                </li>
+            </ul>
+        </li>
+        <li class="document" th:each="doc : ${docs}">
+            <ul class="document__list">
+                <li class="st-col st-col-5" th:text="${doc.company.name}">
+                    Юр Лицо
+                </li>
+                <li class="st-col st-col-5" th:text="${doc.description}">
+                    Документ
+                </li>
+                <li class="st-col st-col-5" th:text="${doc.partner.name}">
+                    Контрагент
+                </li>
+                <li class="st-col st-col-3" th:text="${doc.lastState.name}">
+                    Статус
+                </li>
+                <li class="st-col st-col-3" th:text="${doc.date}">
+                    Создан
+                </li>
+                <li class="st-col st-col-5">
+                    <button class="st-btn st-btn linkDocBtn" th:data-sourceDocId="${sourceDocId}" th:data-docId="${doc._id}">Связать</button>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
+    <div class="pagination outgoing-pagination" id="pageLink">
+        <th:block th:if="${paginator != null}">
+            <th:block th:replace="paginator"></th:block>
+        </th:block>
+    </div>
+</th:block>
+</body>
+</html>

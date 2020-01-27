@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+    <th:block th:fragment="header">
+        <div class="header">
+            <th:block th:include="menu :: menu"></th:block>
+        </div>
+    </th:block>
+</body>
+</html>

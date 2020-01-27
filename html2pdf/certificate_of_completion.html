@@ -1,0 +1,107 @@
+<html style="overflow: hidden;" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+	<meta charset="utf-8"/>
+    <style>
+		.view_container {
+			font-family: Tahoma,sans-serif;
+			font-size: 11.0pt;
+		}
+		.view_executor {
+			font-family: Tahoma,sans-serif;
+			font-size: 8.0pt;
+			font-style: italic;
+		}
+        .view_package {
+            font-family: Tahoma,sans-serif;
+            font-size: 8.0pt;
+        }
+
+        .view_container .border-cell-podpis {
+            border-bottom: 1px solid black;
+            color: black;
+        }
+    </style>
+</head>
+
+<body>
+<div class="view_container">
+	<div align="center"><b>АКТ № <th:block th:text="${номДокПРУ}"></th:block></b></div>
+	<div align="center"><b th:text="${наимДокОпр}"></b></div>
+	<div align="center"><b><th:block th:text="${ЗаголовокОснование}"></th:block> № <th:block th:text="${номОсн}"></th:block> от <th:block th:text="${датаОсн}"></th:block></b></div>
+	<br/>
+	<table align="center">
+		<tbody>
+		<tr>
+			<td width="300px" align="left">г. Новосибирск</td>
+			<td width="300px" align="right" th:text="${датаДокПРУ}"></td>
+		</tr>
+		</tbody>
+	</table>
+	<br/>
+	<table cellpadding="5">
+		<tbody>
+		<tr>
+			<td align="justify" colspan="2" th:text="${загСодОпер}"></td>
+		</tr>
+		<tr>
+			<td width="20px" align="left" valign="top">1.</td>
+			<td align="justify" th:text="${Пункт1}"></td>
+		</tr>
+
+		<th:block th:each="work : ${works}">
+			<tr>
+				<td width="20px" align="left" valign="top" th:text="${work.number2}"></td>
+				<td align="justify" th:text="${work.описание}"></td>
+			</tr>
+		</th:block>
+		<tr>
+			<td width="20px" align="left" valign="top">3.</td>
+			<td align="justify" th:text="${Пункт3}"></td>
+		</tr>
+		</tbody>
+	</table>
+	<br/><br/><br/>
+	<table>
+		<tbody>
+		<tr>
+			<td width="300px" th:text="${ПодписьИсполнительНаименование}"></td>
+			<td width="100px"></td>
+			<td width="300px" th:text="${ПодписьИсполнительФИО}"></td>
+		</tr>
+		<tr>
+			<td width="300px" th:text="${ПодписьЗаказчикНаименование}"></td>
+			<td width="100px"></td>
+			<td width="300px" th:text="${ПодписьЗаказчикФИО}"></td>
+		</tr>
+		</tbody>
+	</table>
+	<br/><br/>
+	<table>
+		<tbody>
+		<tr>
+			<td class="border-cell-podpis" width="300px"></td>
+			<td width="100px"></td>
+			<td class="border-cell-podpis" width="300px"></td>
+		</tr>
+		</tbody>
+	</table>
+	<br/>
+	<table>
+		<tbody>
+		<tr>
+			<td style="width: 300px; padding-left: 60px" align="left">М.П.</td>
+			<td width="100px"></td>
+			<td style="width: 300px; padding-left: 60px" align="left">М.П.</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+<br/><br/>
+<div class="view_executor">
+	<div th:text="${ИсполнительДокументаФИО}"></div>
+	<div th:text="${ИсполнительДокументаТелефон}"></div>
+</div>
+<br/>
+<div class="view_package" th:text="${ПакетНомер}"></div>
+</body>
+</html>

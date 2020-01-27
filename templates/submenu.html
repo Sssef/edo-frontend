@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <th:block th:fragment="submenu">
+        <ul class="submenu" th:if="${!#lists.isEmpty(subMenu)}">
+            <li th:each="sm : ${subMenu}">
+                <a th:href="${sm.url}" th:classappend="${sm.name == pageName ? 'active' : ''}" th:text="${sm.text}">
+                </a>
+                <th:block th:if="${not (#lists.isEmpty(sm.subMenu) && sm.subMenu == null)}" th:replace="submenu :: submenu(subMenu = ${sm.subMenu})"></th:block>
+            </li>
+        </ul>
+    </th:block>
+</body>
+</html>

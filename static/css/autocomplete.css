@@ -1,0 +1,26 @@
+.ac__list {
+    display: block;
+    position: absolute;
+    overflow: auto;
+    overflow-x: hidden;
+    list-style: none;
+    -webkit-overflow-scrolling: touch;
+    border: 2px solid #889bbe;
+    color: #0757a8;
+    background-color: white;
+    width: 100%;
+    transition: .3s all ease;
+    z-index: 100;
+}
+
+.ac__item {
+    cursor: pointer;
+    transition: all .3s ease;
+    padding: 8px 22px;
+    white-space: nowrap;
+    color: #0757a8;
+}
+
+.ac__item:hover {
+    background-color: rgba(7, 87, 168, .1);
+}

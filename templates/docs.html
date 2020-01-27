@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <th:block th:fragment="actions">
+        <button class="st-btn st-btn__with-text" id="doc-view" th:if="${canView}">Просмотреть <i class="icon-eye"></i></button>
+        <button class="st-btn st-btn__with-text" id="doc-sign" th:if="${#lists.contains(actions, 'SIGN')}">Подписать <i class="icon-check"></i></button>
+        <button class="st-btn st-btn__with-text" id="doc-bind" th:data-docId="${docId}">Связать <i class="icon-link"></i></button>
+        <button class="st-btn st-btn__with-text" id="doc-edit" th:if="${#lists.contains(actions, 'EDIT')}">Редактировать <i class="icon-pencil"></i></button>
+        <button class="st-btn st-btn__with-text" id="doc-delete" th:if="${#lists.contains(actions, 'DELETE')}">Удалить <i class="icon-trash"></i></button>
+    </th:block>
+</body>
+</html>

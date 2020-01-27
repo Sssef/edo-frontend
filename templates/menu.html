@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+    <th:block th:fragment="menu">
+        <ul class="menu-list">
+            <li th:each="m : ${menu}">
+                <a th:if="${m.subMenu == null}" th:href="${m.url}" th:classappend="${m.name == pageName ? 'active' : ''}" th:text="${m.text}"></a>
+                <div th:if="${m.subMenu != null}">
+                    <span th:text="${m.text}"></span>
+                    <th:block th:include="submenu :: submenu(subMenu = ${m.subMenu})"></th:block>
+                </div>
+            </li>
+            <li>
+                <form action="/logout" class="logout" method="post">
+                    <button class="st-btn__logout" type="submit">Выход</button>
+                </form>
+            </li>
+        </ul>
+    </th:block>
+</body>
+</html>

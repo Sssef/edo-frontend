@@ -1,0 +1,148 @@
+﻿<html style="overflow: hidden;" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+ <meta charset="utf-8"/>
+ <style>
+  .view_container {
+   font-family: Tahoma,sans-serif;
+   font-size: 11.0pt;
+  }
+  .view_header {
+   font-family: Tahoma,sans-serif;
+   font-size: 13.0pt;
+  }
+
+  .view_container .border-cell-podpis {
+   border-bottom: 1px solid black;
+   color: black;
+  }
+
+  .view_container .tab tr td {
+   border: 1px solid black;
+  }
+
+  .view_container .tab {
+   margin-top: 10px;
+   border-collapse: collapse;
+  }
+
+  .view_container .tab thead {
+   font-size: 10.0pt;
+  }
+
+ </style>
+</head>
+
+<body>
+<div class="view_container">
+ <div class="view_header" align="center"><b>СЧЕТ № <th:block th:text="${number}"></th:block> от <th:block th:text="${date}"></th:block></b></div>
+ <br/>
+ <table align="center" cellpadding="20px">
+  <tbody>
+  <tr>
+   <td width="500px" align="left" valign="top"><b>Продавец <th:block th:text="${seller}"></th:block></b><br/>
+    <b>Адрес</b><br/>
+    <th:block th:text="${addressSeller}"></th:block><br/>
+    <b>ИНН продавца</b> <th:block th:text="${sellerInn}"></th:block>
+    <th:block th:if="${sellerKpp} != null">
+     <b>КПП продавца</b> <th:block th:text="${sellerKpp}"></th:block><br/>
+    </th:block>
+    р/с <th:block th:text="${account}"></th:block> в <th:block th:text="${bank}"></th:block>; БИК <th:block th:text="${bic}"></th:block><br/>
+    к/с <th:block th:text="${corAccount}"></th:block> в <th:block th:text="${rkcNamePayment}"></th:block>
+   </td>
+   <td width="500px" align="left" valign="top"><b>Покупатель <th:block th:text="${buyer}"></th:block></b><br/>
+    <b>Адрес</b><br/>
+    <th:block th:text="${addressBuyer}"></th:block><br/>
+    <b>ИНН покупателя</b> <th:block th:text="${buyerInn}"></th:block>
+    <th:block th:if="${buyerKpp} != null">
+     <b>КПП покупателя</b> <th:block th:text="${buyerKpp}"></th:block><br/>
+    </th:block>
+    <th:block th:if="${isPayerSameCustomer} == false">
+     <br/>
+     <b>Плательщик <th:block th:text="${payer}"></th:block></b>
+     <b>Адрес</b><br/>
+     <th:block th:text="${addressPayer}"></th:block><br/>
+     <b>ИНН плательщика</b> <th:block th:text="${payerInn}"></th:block>
+     <th:block th:if="${payerKpp} != null">
+      <b>КПП плательщика</b> <th:block th:text="${payerKpp}"></th:block><br/>
+     </th:block>
+    </th:block>
+   </td>
+  </tr>
+  </tbody>
+ </table>
+ <br/>
+
+ <table cellpadding="5" class="tab">
+  <thead>
+  <tr>
+   <td width="20px" align="center">№<br/>п/п</td>
+   <td width="280px" align="center">Наименование товара/услуги</td>
+   <td width="60px" align="center">Ед.<br/>изм.</td>
+   <td width="40px" align="center">Кол-во</td>
+   <td width="120px" align="center">Цена,<br/>RUB</td>
+   <td width="120px" align="center">Сумма,<br/>RUB</td>
+   <td width="40px" align="center">НДС<br/>%</td>
+   <td width="120px" align="center">Сумма<br/>НДС</td>
+   <td width="140px" align="center">Итого с НДС,<br/>RUB</td>
+  </tr>
+  </thead>
+  <tbody>
+  <th:block th:each="product : ${products}">
+  <tr>
+   <td align="right" th:text="${product.nn}"></td>
+   <td align="left" th:text="${product.name}"></td>
+   <td align="center">-</td>
+   <td align="right" th:text="${product.quantity}"></td>
+   <td align="right" th:text="${product.price}"></td>
+   <td align="right" th:text="${product.amtWoNDS}"></td>
+   <td align="right" th:text="${NDS}"></td>
+   <td align="right" th:text="${product.amtNDS}"></td>
+   <td align="right" th:text="${product.amtWithNDS}"></td>
+  </tr>
+  </th:block>
+  <tr>
+   <td colspan="4" align="left" style="border-right: none; border-bottom: none">Всего к оплате</td>
+   <td colspan="2" align="right" style="border-left: none; border-right: none; border-bottom: none"><b th:text="${sumWoNDS}">-</b></td>
+   <td style="border-left: none; border-right: none; border-bottom: none"></td>
+   <td align="right" style="border-left: none; border-right: none; border-bottom: none"><b th:text="${sumNDS}">-</b></td>
+   <td align="right" style="border-left: none; border-bottom: none"><b th:text="${sumWithNDS}">-</b></td>
+  </tr>
+  <tr>
+   <td colspan="10" align="left" style="border-top: none">&nbsp;&nbsp;&nbsp;прописью: <b th:text="${sumWithNDSwords}">.</b></td>
+  </tr>
+  </tbody>
+ </table>
+ <br/>Средства перечислить банковским переводом.
+ <br/><br/><br/>
+
+ <table>
+   <tbody>
+  <tr>
+   <td width="100px" th:text="${directorPosition}">Руководитель</td>
+   <td class="border-cell-podpis" width="300px"></td>
+   <td width="100px"></td>
+   <td></td>
+   <td></td>
+   <!--td width="150px">Главный бухгалтер</td>
+   <td class="border-cell-podpis" width="300px"></td-->
+  </tr>
+  <tr>
+   <td width="100px"></td>
+   <td width="300px" th:text="${director}"></td>
+   <td width="100px"></td>
+   <td width="150px"></td>
+   <td width="300px"></td>
+  </tr>
+  </tbody>
+ </table>
+ <br/><br/>
+ <table>
+  <tbody>
+  <tr>
+   <td style="width: 400px; padding-left: 200px" align="left">М.П.</td>
+  </tr>
+  </tbody>
+ </table>
+</div>
+</body>
+</html>

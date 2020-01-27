@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>First test</title>
+    <th:block th:include="head :: head"></th:block>
+    <link rel="stylesheet" th:href="@{/css/datepicker.min.css}"/>
+    <script type="text/javascript" th:src="@{/js/datepicker.min.js}"></script>
+    <link href="css/suggestions.min.css" type="text/css" rel="stylesheet" />
+    <!--[if lt IE 10]>
+    <script type="text/javascript" src="js/jquery.xdomainrequest.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="js/jquery.suggestions.min.js"></script>
+    <script type="text/javascript" src="js/jquery.inputmask.bundle.min.js"></script>
+</head>
+<body>
+    <th:block th:include="header :: header"></th:block>
+    <div class="content-area">
+        <h2 class="content-area__title">Список сотрудников</h2>
+        <div class="row controls">
+            <button class="st-btn st-btn__new-employee">Новый сотрудник</button>
+            <div id="employees-form-wrapper"></div>
+        </div>
+
+        <div class="separator"></div>
+
+        <ul class="st-users-list">
+            <li class="employee st-card" th:each="employee : ${employees}">
+                <ul class="st-card__list" th:data-employee-id="${employee.id}">
+                    <li class="st-card__item st-card__item-title">
+                        <span th:if="${employee.lastName != null}" th:text="${employee.lastName}" class="st-card__item-part"></span>
+                        <span th:if="${employee.firstName != null}" th:text="${employee.firstName}" class="st-card__item-part"></span>
+                        <span th:if="${employee.middleName != null}" th:text="${employee.middleName}"></span>
+                    </li>
+                    <li class="st-card__item">
+                        <span th:if="${employee.position != null}" th:text="${employee.position}"></span>
+                    </li>
+                </ul>
+                <div class="st-card__menu">
+                    <div class="st-controls__menu-list">
+                        <div class="st-controls__employee-wrapper">
+                            <button class="st-btn st-btn__delete st-btn__with-text" th:data-employee-id="${employee.id}" title="Удалить">Удалить <i class="icon-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="st-controls__menu-btn">
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        $(function () {
+            const $d = $(document);
+            const employeeFormWrapper = $('#employees-form-wrapper');
+
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const isMobileDevice = /windows phone/i.test(userAgent) || /android/i.test(userAgent) || (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream);
+
+            $d.on('click', '.st-btn__new-employee', function (e) {
+                e.preventDefault();
+
+                ajax('GET', '/employees/form', {}, 'html', function (response) {
+                    employeeFormWrapper.html(response);
+
+                    let $birthDay = $('#employee-birthday');
+                    let $issued = $('#employee-document-issued');
+
+                    if (isMobileDevice) {
+                        $birthDay.prop('type', 'date');
+                        $issued.prop('type', 'date');
+                    }
+                }, function (xhr) {
+                    errorMessages(xhr, $(this).closest('.employee'));
+                });
+            });
+
+            $d.on('click', '.employee .st-card__menu .st-controls__menu-btn', function () {
+                const $this = $(this);
+                if ($this.siblings('.st-controls__menu-list').hasClass('opened') === false) {
+                    $this.siblings('.st-controls__menu-list').addClass('opened').find('.st-controls__wrapper');
+                } else {
+                    $this.siblings('.st-controls__menu-list').removeClass('opened');
+                }
+            });
+
+            $d.on('click', '.employee .st-card__list', function (e) {
+                e.preventDefault();
+                const $this = $(this);
+                const id = $this.data('employee-id');
+
+                ajax('PUT', '/employees/form', {id: id}, 'html', function (response) {
+                    employeeFormWrapper.html(response);
+                    let $birthDay = $('#employee-birthday');
+                    let $issued = $('#employee-document-issued');
+
+                    if (isMobileDevice) {
+                        $birthDay.prop('type', 'date');
+                        $issued.prop('type', 'date');
+                    }
+                }, function (xhr) {
+                    errorMessages(xhr, $this.closest('.employee'));
+                });
+            });
+
+            $d.on('click', '.employee .st-btn__delete', function (e) {
+               e.preventDefault();
+
+                const $this = $(this);
+                const employeeId = $this.attr('data-employee-id');
+
+                ajax('DELETE', '/employees', {id: employeeId}, 'json', function () {
+                    $this.closest('.employee').remove();
+                }, function (xhr) {
+                    errorMessages(xhr, $this.closest('.employee'));
+                })
+            });
+
+            $d.on('submit', '#employees-form', function (e) {
+                e.preventDefault();
+                const $this = $(this);
+                $this.find('.st-btn[type=submit]').prop('disabled', true).addClass('disabled');
+
+                ajax($this.attr('method'), '/employees', $this.serialize(), 'json', function () {
+                    location.reload();
+                }, function (xhr) {
+                    errorMessages(xhr, $this);
+                    $this.find('.st-btn[type=submit]').prop('disabled', false).removeClass('disabled');
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>

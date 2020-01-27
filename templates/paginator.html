@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <th:block th:fragment="paginator" th:with="pagesCount = ${paginator.pagesCount}">
+        <div class="pages"
+             th:if="${pagesCount !=null && pagesCount > 1}"
+             th:with="currentPage = ${paginator.currentPage},
+                pageFrom = ${currentPage < 5 ? 1 : (pagesCount - currentPage < 4 ? pagesCount - 4 : currentPage - 1)},
+                pageTo = ${pagesCount > 7 ? (pagesCount - currentPage < 4 ? pagesCount : (currentPage < 5 ? 5 : currentPage + 1)) : pagesCount}"
+        >
+
+            <a class="st-btn" th:if="${currentPage > 1}" th:href="${'?page=' + (currentPage - 1)}" th:data-page="${currentPage - 1}">
+                <i class="icon icon-left">⮟</i>
+            </a>
+
+            <th:block th:if="${pageFrom > 1}">
+                <a class="st-btn" data-page="1" href='?page=1'>1</a>
+                <span th:if="${pageFrom != 2}">&hellip;</span>
+            </th:block>
+
+            <a th:each="pageNum: ${#numbers.sequence(pageFrom, pageTo)}"
+               th:data-page="${pageNum}" th:href="${'?page=' + pageNum}"
+               th:text="${pageNum}" th:class="${pageNum == currentPage ? 'active st-btn':'st-btn'}">
+            </a>
+
+            <th:block th:if="${pageTo < pagesCount}">
+                <span>&hellip;</span>
+                <a class="st-btn" th:text="${pagesCount}" th:data-page="${pagesCount}" th:href="${'?page=' + pagesCount}"></a>
+            </th:block>
+
+            <a class="st-btn" th:if="${currentPage < pagesCount}" th:href="${'?page=' + (currentPage + 1)}" th:data-page="${currentPage + 1}">
+                <i class="icon icon-right">⮟</i>
+            </a>
+        </div>
+    </th:block>
+</body>
+</html>

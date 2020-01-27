@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Управление пользователями</title>
+    <th:block th:include="head :: head"></th:block>
+</head>
+    <body>
+
+        <th:block th:include="admin/adminHeader :: adminHeader"></th:block>
+
+        <th:block>
+
+            <div class="content-area">
+                <h2 class="content-area__title">Список пользователей</h2>
+                <button class="st-btn st-btn__new-user">Новый пользователь</button>
+
+                <ul class="st-users-list">
+                    <li th:each="user : ${users}" class="user st-card"
+                        th:data-user-id="${user._id}"
+                        th:data-username="${user.username}"
+                        th:data-user-role="${user.role}"
+                        th:data-first-name="${user.firstName}"
+                        th:data-last-name="${user.lastName}"
+                        th:data-middle-name="${user.middleName}"
+                        th:data-user-position="${user.position.name}"
+                        th:data-creator="${user.get('creator') != null ? user.creator.username : null}"
+                        th:data-register-date="${(user.get('registerDate') != null) ? (user.registerDate) : (null)}"
+                    >
+                        <ul class="st-card__list">
+                            <li class="st-card__item"><span class="st-card__item-title">Пользователь:</span><div class="st-card__item-text username" th:text="${user.username}"></div></li>
+                            <li class="st-card__item companies-list">
+                                <span class="st-card__item-title">Компании:</span>
+                                <ul>
+                                    <li th:each="company : ${user.companies}"
+                                        th:data-company-name="${company.name}"
+                                        th:data-company-inn="${company.inn}"
+                                        th:data-company-address="${company.address}"
+                                        class="company">
+                                        <span th:text="${company.name}"></span>
+                                        <span th:text="${company.inn}"></span>
+                                        <span th:text="${company.address}"></span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="st-card__item"><span class="st-card__item-title">Роль:</span><div class="st-card__item-text" th:text="${user.role}"></div></li>
+                            <li class="st-card__item"><span class="st-card__item-title">Должность:</span><div class="st-card__item-text" th:text="${user.position != null ? user.position.name : 'Отсутствует'}" data-autocomplete="true"></div></li>
+                            <li class="st-card__item"><span class="st-card__item-title">Фамилия:</span><div class="st-card__item-text" th:text="${user.lastName}"></div></li>
+                            <li class="st-card__item"><span class="st-card__item-title">Имя:</span><div class="st-card__item-text user-first-name" th:text="${user.firstName}"></div></li>
+                            <li class="st-card__item"><span class="st-card__item-title">Отчество:</span><div class="st-card__item-text" th:text="${user.middleName != null ? user.middleName : 'Отсутствует'}"></div></li>
+                            <li class="st-card__item"><span class="st-card__item-title">Создал:</span><div class="st-card__item-text user-creator" th:text="${user.get('creator') != null ? user.creator.username : 'Нет данных'}"></div></li>
+                            <li class="st-card__item"><span class="st-card__item-title">Дата создания:</span><div class="st-card__item-text user-creation-date" th:text="${(user.get('registerDate') != null) ? (user.registerDate) : ('Нет данных')}"></div></li>
+                        </ul>
+                        <div class="st-card__controls">
+                            <button class="st-btn st-btn__delete" title="Удалить"><i class="icon-trash"></i></button>
+                            <button class="st-btn st-btn__edit" title="Редактировать"><i class="icon-pencil"></i></button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+
+            <div class="modal-layer hidden">
+                <form th:action="@{/admin/users}" id="user-form" class="st-form st-modal__inner hidden">
+                    <button type="button" class="st-btn__close"><i class="icon-cancel"></i></button>
+                    <input type="text" class="user-login st-input" name="login" placeholder="Email">
+                    <input type="password" class="user-pswd st-input" name="password" placeholder="Пароль">
+                    <input type="text" class="user-last-name st-input" name="lastName" placeholder="Фамилия">
+                    <input type="text" class="user-first-name st-input" name="firstName" placeholder="Имя">
+                    <input type="text" class="user-middle-name middle-name st-input" name="middleName" placeholder="Отчество">
+                    <label id="middle-name-label" for="middle-name" class="st-checkwrap">
+                        <span>Нет отчества</span>
+                        <input id="middle-name" type="checkbox">
+                        <span class="st-checkbox"><i class="icon-ok"></i></span>
+                    </label>
+                    <input id="party" type="text" size="100" class="user-companies st-input" placeholder="Компания" data-dadata-type="PARTY">
+                    <ul class="user-companies__list">
+                    </ul>
+                    <div class="role-wrapper st-checkwrap">
+                        <label for="userRole">
+                            Пользователь
+                            <input id="userRole" type="radio" name="role" value="USER" checked>
+                            <span class="st-radio"></span>
+                        </label>
+                        <label for="adminRole">
+                            Администратор
+                            <input id="adminRole" type="radio" name="role" value="ADMIN">
+                            <span class="st-radio"></span>
+                        </label>
+                    </div>
+                    <input id="position" class="st-input" name="position" type="text" placeholder="Должность" data-autocomplete="true">
+                    <input type="hidden" name="id" id="userId">
+                    <button type="submit" class="st-btn st-btn__add">Добавить</button>
+                </form>
+            </div>
+
+        </th:block>
+
+        <script type="text/javascript">
+            $(function () {
+                const $d = $(document);
+                const $userForm = $('#user-form');
+                const $userNameVal = $('.user-login');
+                const $userPswdVal = $('.user-pswd');
+                const $userFirstNameVal = $('.user-first-name');
+                const $userLastNameVal = $('.user-last-name');
+                const $userMiddleNameVal = $('.user-middle-name');
+                const $userCompanies = $('.user-companies__list');
+                const $userRole = $('#userRole');
+                const $adminRole = $('#adminRole');
+                const $party = $('#party');
+                const $middleCheckbox = $('#middle-name');
+                const $users = $('.st-users-list');
+                const $modalLayer = $('.modal-layer');
+                const $userId = $('#userId');
+                const $position = $('#position');
+                let $user;
+
+                init();
+
+                $d.on('click', "#adminRole", function () {
+                    $('.user-companies').addClass('hidden').val('');
+                    $position.addClass('hidden').val('').removeAttr('name');
+                    $('.user-companies__list li').remove();
+                });
+
+                $d.on('click', '#userRole', function () {
+                    $position.removeClass('hidden').attr('name', 'position');
+                    $('.user-companies').removeClass('hidden');
+                });
+
+                $d.on('click', '.user-companies__list li .st-btn__delete', function (e) {
+                    e.preventDefault();
+                    $(this).closest('li').remove();
+                });
+
+                $d.on('click', '.st-btn__new-user', function (e) {
+                    e.preventDefault();
+
+                    $userForm.prop('method', 'POST');
+                    showUserForm();
+                });
+
+                $d.on('click', '.user .st-btn__delete', function (e) {
+                    e.preventDefault();
+
+                    let $t = $(this).closest('.user');
+                    let userId = $t.attr('data-user-id');
+
+                    ajax('DELETE', '/admin/users', {id: userId}, 'json', function () {
+                        $t.remove();
+                    })
+                });
+
+                $d.on('click', '.st-btn__edit', function (e) {
+                    e.preventDefault();
+
+                    $user = $(this).closest('.user');
+                    let $companies = $user.find('.companies-list li');
+                    let userCompanies = [];
+
+                    $companies.each(function () {
+                        let $this = $(this);
+
+                        let company = {
+                            inn: $this.data('company-inn'),
+                            name: $this.data('company-name'),
+                            address: $this.data('company-address')
+                        };
+                        userCompanies.push(company);
+                    });
+
+                    let userInfo = {
+                        id: $user.data('user-id'),
+                        username: $user.data('username'),
+                        companies: userCompanies,
+                        role: $user.data('user-role'),
+                        position: $user.data('user-position'),
+                        firstName: $user.data('first-name'),
+                        lastName: $user.data('last-name'),
+                        middleName: $user.data('middle-name'),
+                        creator: $user.data('creator'),
+                        registerDate: $user.data('register-date')
+                    };
+
+                    $userForm.prop("method", "PUT");
+
+                    showUserForm(userInfo);
+                });
+
+                $d.on('submit', '#user-form', function (e) {
+                    e.preventDefault();
+
+                    const $this = $(this);
+                    $this.find('.st-btn[type=submit]').prop('disabled', true).addClass('disabled');
+
+                    ajax($this.attr('method'), '/admin/users', $(this).serialize(), 'json', function (response) {
+                        location.reload();
+                    }, function(xhr) {
+                        errorMessages(xhr, $this);
+                        $this.find('.st-btn[type=submit]').prop('disabled', false).removeClass('disabled');
+                    });
+                });
+
+                function buildCompanies(user) {
+                    if (!user.companies) return '';
+
+                    let result = '';
+                    for (let i = 0; i < user.companies.length; i++) {
+                        let li =
+                            '<li ' +
+                            'data-company-name="' + user.companies[i].name + '"' + ' ' +
+                            'data-company-inn="'+ user.companies[i].inn + '"' + ' ' +
+                            'data-company-address="'+ user.companies[i].address+ '"' + ' ' +
+                            'class="company">' +
+                                '<div>'+
+                                    '<span>' + user.companies[i].name + '</span>' +
+                                    '<span>' + user.companies[i].inn + '</span>' +
+                                    '<span>' + user.companies[i].address + '</span>' +
+                                '</div>'+
+                                '<button class="st-btn st-btn__delete" title="Удалить"><i class="icon-trash"></i></button>' +
+                                '<input type="hidden" name="companies" value="'+ user.companies[i].inn +'" data-inn="' + user.companies[i].inn + '">' +
+                            '</li>';
+
+                        result += li;
+                    }
+
+                    return result;
+                }
+
+                function showUserForm(user) {
+                    $('.modal-layer').removeClass('hidden');
+                    $('#user-form').removeClass('hidden');
+
+                    if (user) {
+                        $('.role-wrapper').addClass('hidden');
+                        $userNameVal.val(user.username).prop({'disabled': true, 'readonly': true});
+                        $userPswdVal.addClass('hidden').val(user.password).prop({'disabled': true, 'readonly': true});
+                        $userFirstNameVal.val(user.firstName);
+                        $userLastNameVal.val(user.lastName);
+                        $userId.val(user.id);
+                        $position.val(user.position);
+                        $(this).closest('.user-companies').toggleClass('hidden');
+                        $('.st-btn__add').text('Применить');
+
+                        if (user.middleName) {
+                            $userMiddleNameVal.val(user.middleName);
+                            $middleCheckbox.prop('checked', false);
+                        } else {
+                            $userMiddleNameVal.hide();
+                            $middleCheckbox.prop('checked', true);
+                        }
+
+                        if (user.role === 'USER') {
+                            $party.removeClass('hidden');
+                            $userRole.prop({'checked': true, 'disabled': true});
+                            $adminRole.prop('disabled', true);
+                            $position.removeClass('hidden');
+                        } else if (user.role === 'ADMIN') {
+                            $party.addClass('hidden');
+                            $adminRole.prop({'checked': true, 'disabled': true});
+                            $userRole.prop('disabled', true);
+                            $position.addClass('hidden');
+                        }
+
+                        $userCompanies.append(buildCompanies(user));
+                    } else {
+                        $('.role-wrapper').removeClass('hidden');
+                        $('.st-btn__add').text('Добавить');
+
+                        $userNameVal.val('').prop({'disabled': false, 'readonly': false});
+                        $userPswdVal.removeClass('hidden').val('').prop({'disabled': false, 'readonly': false});
+                        $userFirstNameVal.val('');
+                        $userLastNameVal.val('');
+                        $userMiddleNameVal.val('').show();
+                        $userId.val('');
+                        $middleCheckbox.prop('checked', false);
+                        $userRole.prop('disabled', false);
+                        $adminRole.prop('disabled', false);
+                        $position.val('');
+                    }
+                }
+            });
+        </script>
+
+</body>
+</html>

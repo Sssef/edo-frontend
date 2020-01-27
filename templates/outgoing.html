@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>First test</title>
+    <th:block th:include="head :: head"></th:block>
+    <link rel="stylesheet" th:href="@{/css/datepicker.min.css}"/>
+    <script type="text/javascript" th:src="@{/js/datepicker.min.js}"></script>
+</head>
+<body>
+
+    <th:block th:include="header :: header"></th:block>
+    <div class="content-area">
+        <h2 class="content-area__title">Исходящие документы</h2>
+
+        <div class="row controls">
+            <button class="st-btn st-btn__with-text" id="new-bill">Выставить счёт <i class="icon-doc-new"></i></button>
+            <button class="st-btn st-btn__with-text" id="multi-check">Отметить</button>
+            <button class="st-btn st-btn__with-text" id="multi-show">Просмотр</button>
+            
+            <div class="st-btn st-btn__with-text" id="download-document">
+                Загрузить документ <i class="icon-download-alt"></i>
+                <div class="tooltip st-controls__wrapper">
+                    <form class="document" id="documentTypeForm" enctype="multipart/form-data" action="/outgoing/upload" method="POST">
+                        <input type="hidden" name="documentType" id="documentType">
+                        <label class="st-file">
+                            <span>Счёт фактура</span>
+                            <input type="file" class="st-btn" id="INVOICE">
+                        </label>
+                        <label class="st-file">
+                            <span>Корректировочная счёт фактура</span>
+                            <input type="file" class="st-btn" id="ADJUSTMENT_INVOICE">
+                        </label>
+                        <label class="st-file">
+                            <span>Акт</span>
+                            <input type="file" class="st-btn" id="CERTIFICATE_OF_COMPLETION">
+                        </label>
+                        <label class="st-file">
+                            <span>Универсальный передаточный документ</span>
+                            <input type="file" class="st-btn" id="UNIVERSAL_TRANSFER_DOCUMENT">
+                        </label>
+                    </form>
+                </div>
+            </div>
+
+            <div id="form-wrapper"></div>
+        </div>
+
+        <div class="separator"></div>
+        
+        <ul class="st-docs-list">
+            <li class="document-header">
+                <ul class="document__list">
+                    <li class="st-col st-col-1">
+                    </li>
+                    <li class="st-col st-col-5">
+                        Юр Лицо
+                    </li>
+                    <li class="st-col st-col-5">
+                        Документ
+                    </li>
+                    <li class="st-col st-col-5">
+                        Контрагент
+                    </li>
+                    <li class="st-col st-col-5">
+                        Статус
+                    </li>
+                    <li class="st-col st-col-4">
+                        Дата
+                    </li>
+                    <li class="st-col st-col-4">
+                        Изменен
+                    </li>
+                    <li class="st-col st-col-3">
+                        Загрузил
+                    </li>
+                    <li class="st-col st-col-3">
+                        Действия
+                    </li>
+                </ul>
+            </li>
+            <li class="document" th:each="doc : ${docs}" th:data-id="${doc._id}" th:data-sign="${doc.canSign}">
+                <ul class="document__list">
+                    <li class="st-col st-col-1">
+                        <div class="st-check">
+                            <input type="checkbox" class="st-check__input" th:value="${doc._id}" th:data-sign="${doc.canSign}">
+                        </div>
+                    </li>
+                    <li class="st-col st-col-5" th:text="${doc.company.name}">
+                        Юр Лицо
+                    </li>
+                    <li class="st-col st-col-5" th:text="${doc.description}">
+                        Документ
+                    </li>
+                    <li class="st-col st-col-5" th:text="${doc.partner.name}">
+                        Контрагент
+                    </li>
+                    <li class="st-col st-col-5" th:text="${doc.lastState.name}">
+                        Статус
+                    </li>
+                    <li class="st-col st-col-4" th:text="${doc.date}">
+                        Создан
+                    </li>
+                    <li class="st-col st-col-4" th:text="${doc.lastState.date}">
+                        Изменен
+                    </li>
+                    <li class="st-col st-col-3" th:text="${doc.creator.username}">
+                        Загрузил
+                    </li>
+                    <li class="st-col st-col-3 st-card__menu">
+                        <div class="st-controls__menu-list">
+                            <div class="st-controls__wrapper"></div>
+                        </div>
+                        <div class="st-controls__menu-btn" th:data-id="${doc.get('_id')}"></div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <div class="pagination outgoing-pagination">
+            <th:block th:if="${paginator != null}">
+                <th:block th:replace="paginator"></th:block>
+            </th:block>
+        </div>
+
+    </div>
+
+    <div class="errors-modal">
+
+    </div>
+
+    <div class="st-modal modal-layer hidden" id="docLinkModal">
+
+        <form class="st-form st-modal__inner" id="docsBindForm" method="post" action="/outgoing">
+            <button type="button" class="st-btn__close"><i class="icon-cancel"></i></button>
+
+            <div class="st-title">Связь</div>
+
+            <div class="st-wrapper">
+                Выберите фильтры
+                <div class="row controls">
+
+                    <div class="list-wrapper">
+                        <select id="docFilterType" class="filter" title="Фильтр по типу">
+                            <option value="">Все</option>
+                            <option value="CERTIFICATE_OF_COMPLETION">Акт</option>
+                            <option value="BILL">Счёт</option>
+                            <option value="INVOICE">Счёт-фактура</option>
+                            <option value="ADJUSTMENT_INVOICE">Корректировочная счёт-фактура</option>
+                            <option value="UNIVERSAL_TRANSFER_DOCUMENT">Универсальный передаточный документ</option>
+                            <option value="CONTRACT">Договор</option>
+                        </select>
+                    </div>
+
+                    <div class="list-wrapper">
+                        <select id="docFilterDirection" class="filter" title="Фильтр по направлению">
+                            <option value="">Все</option>
+                            <option value="INCOME">Входящие</option>
+                            <option value="OUTCOME">Исходящие</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="documents-list">
+                    Выберите документ для связи с текущим из списка
+                    <div class="st-input bind-doc" id="binded-doc"></div>
+                </div>
+
+            </div>
+
+        </form>
+        
+    </div>
+    <div id="docs-listing" class="st-modal modal-layer hidden">
+        <div class="st-modal__inner">
+            <button type="button" class="st-btn__close"><i class="icon-cancel"></i></button>
+            <div class="st-modal__top">
+                <iframe src="" frameborder="0"></iframe>
+            </div>
+            <div class="st-modal__bottom">
+                <button class="st-btn st-btn__with-text disabled" id="prev-frame">Влево</button>
+                <button class="st-btn st-btn__with-text" id="next-frame">Вправо</button>
+                <button class="st-btn st-btn__with-text" id="doc-sign">Подписать <i class="icon-check"></i></button>
+                <button class="st-btn st-btn__with-text" id="doc-sign-all">Подписать  все <i class="icon-check"></i></button>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function(){
+            const $d = $(document),
+                $tooltip = $('.tooltip'),
+                $popup = $('.st-popup'),
+                $documentTypeForm = $('#documentTypeForm'),
+                $docsBindForm = $('#docsBindForm'),
+                $docViewIframe = $('#docs-listing').find('iframe'),
+                $prevBtn = $('#prev-frame'),
+                $nextBtn = $('#next-frame'),
+                $docSignBtn = $('#doc-sign'),
+                $signAllDocsBtn = $('#doc-sign-all');
+            let docsToShow,
+                currentDocViewIndex;
+
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const isMobileDevice = /windows phone/i.test(userAgent) || /android/i.test(userAgent) || (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream);
+
+            init();
+
+            $d.on('click', '.st-status', function () {
+                const $this = $(this),
+                    docId = $this.closest('.document').data('id');
+
+                ajax('GET', '/docs/'+ docId +'/states', {}, 'html', function(response) {
+                    $this.siblings('.st-popup').find('.st-popup__inner').html(response);
+                }, function (xhr) {
+                    errorMessages(xhr, $this);
+                })
+            });
+
+            $d.on('click', '.st-card__document', function () {
+               const $this = $(this);
+            });
+
+
+            $d.on('click', '.filter .jq-selectbox__dropdown ul li', function () {
+                //if ($docsBindForm.length === 0) {
+                    $docsBindForm.find('.documents-list').removeClass('hidden');
+                //}
+
+            });
+
+            $d.on('mouseup', function (e){ // событие клика по веб-документу
+                const div = $tooltip, // тут указываем ID элемента
+                    popup = $popup;
+                if (!div.is(e.target) // если клик был не по нашему блоку
+                    && div.has(e.target).length === 0) { // и не по его дочерним элементам
+                    div.removeClass('opened'); // скрываем его
+                }
+                if (!popup.is(e.target)
+                    && popup.has(e.target).length === 0) {
+                    popup.removeClass('visible');
+                }
+            });
+
+            $d.on('click', '#download-document', function () {
+                $tooltip.addClass('opened');
+            });
+
+            $d.on('change', '.doctype', function (e) {
+                e.preventDefault();
+                const $this = $(this);
+
+                $documentTypeForm.find('#documentType').val($this.val());
+
+            });
+
+            $d.on('change', 'input[type=file]', function () {
+                const $this = $(this);
+                $this.attr('name', 'file');
+                $documentTypeForm.find('#documentType').val($this.attr('id'));
+                $documentTypeForm.trigger('submit');
+                $this.closest($tooltip).removeClass('opened');
+            });
+
+            $d.on('submit', '#documentTypeForm', function(e) {
+                e.preventDefault();
+
+                ajax('POST', '/outgoing/upload', new FormData(this), 'json', function (response) {
+                    location.reload();
+                }, function (xhr) {
+                    errorMessages(xhr, $('.errors-modal').addClass('opened'));
+                })
+            });
+
+            $d.on('click', '#new-bill', function (e) {
+                e.preventDefault();
+
+                ajax("GET", "/outgoing/bill/form", {}, 'html', function (response) {
+                   $('#form-wrapper').html(response);
+
+                    let $datepicker = $('#datepicker');
+
+                    if (isMobileDevice) {
+                        $datepicker.prop('type', 'date');
+                    }
+                }, function (xhr) {
+                    errorMessages(xhr, $(this));
+                });
+            });
+
+            $d.on('click', '.document #doc-delete', function (e) {
+                const $this = $(this);
+                const id = $this.closest('.document').data('id');
+
+                ajax('DELETE', '/outgoing', {id: id}, 'html', function () {
+                    $this.closest('.document').remove();
+                }, function (xhr) {
+                    errorMessages(xhr, $this.closest('.document'));
+                });
+            });
+
+            $d.on('click', '.document #doc-edit', function (e) {
+                const $this = $(this);
+                const id = $this.closest('.document').data('id');
+
+                ajax('PUT', '/outgoing/bill/form', {id: id}, 'html', function (response) {
+                    $('#form-wrapper').html(response);
+                    let $datepicker = $('#datepicker');
+
+                    if (isMobileDevice) {
+                        $datepicker.prop('type', 'date');
+                    }
+                }, function (xhr) {
+                    errorMessages(xhr, $(this));
+                });
+            });
+
+            $d.on('click', '[data-address]', function () {
+                $('#address').val($(this).data('address'));
+            });
+
+            $d.on('submit', '#bill-form', function (e) {
+                e.preventDefault();
+                const $this = $(this);
+
+                $this.find('.st-btn[type=submit]').prop('disabled', true).addClass('disabled');
+                ajax($this.attr('method'), '/outgoing/bill', $this.serialize(), 'json', function (response) {
+                    location.reload(response);
+                }, function (xhr) {
+                    errorMessages(xhr, $this);
+                    $this.find('.st-btn[type=submit]').prop('disabled', false).removeClass('disabled');
+                })
+            });
+
+            $d.on('change', '#payer-same-customer', function () {
+                const $this = $(this);
+
+                if ($this.is(':checked') === true) {
+                    $('#payer').addClass('hidden').val('');
+                    $('#payer-inn').val('').removeAttr('name');
+                }
+                else if ($this.is(':checked') === false) {
+                    $('#payer').removeClass('hidden');
+                    $('#payer-inn').attr('name', 'payer');
+                }
+            });
+
+            $d.on('change', 'input[type=radio]', function () {
+                if ($('#service').is(':checked')) {
+                    $('#quantity').addClass('hidden').removeAttr('name').val('');
+                } else if ($('#product').is(':checked')) {
+                    $('#quantity').removeClass('hidden').prop('name', 'quantity');
+                }
+            });
+
+            $d.on('click', '.st-status', function () {
+                const $this = $(this);
+                $this.siblings('.st-popup').toggleClass('visible');
+            });
+
+            $d.on('click', '#multi-check', function () {
+                const $this = $(this);
+
+                if ($this.hasClass('active')) {
+                    $this.removeClass('active');
+                    $('.st-check').removeClass('active');
+                    $this.text('Отметить');
+                    $('.st-check__input').prop('checked', false);
+                    $('#multi-show').removeClass('active');
+                } else {
+                    $this.addClass('active');
+                    $this.text('Снять');
+                    $('.st-check').addClass('active');
+                }
+            });
+
+            $d.on('change', '.st-check__input', function () {
+                const checked = $d.find('.st-check__input:checked');
+                if (checked.length > 0) {
+                    $('#multi-show').addClass('active');
+                    $('#multi-check').text('Снять');
+                } else {
+                    $('#multi-show,.st-check,#multi-check').removeClass('active');
+                    $('#multi-check').text('Отметить');
+                }
+            });
+
+            $d.on('click', '#doc-view', function(e) {
+                const $this = $(this);
+
+                const id = $this.closest('[data-id]').attr('data-id');
+                const canSign = 'true' === $this.closest('[data-sign]').attr('data-sign');
+
+                $docViewIframe.attr('src', 'docs/' + id + '/view.pdf');
+                $docSignBtn.toggleClass('disabled', !canSign);
+                $('#docs-listing').removeClass('hidden');
+
+                $nextBtn.addClass('disabled');
+                $prevBtn.addClass('disabled');
+            });
+
+            $d.on('click', '#multi-show', function () {
+                const $checkedDocs = $('.st-check__input:checked');
+                $signAllDocsBtn.removeClass('disabled');
+
+                docsToShow = $checkedDocs.map(function() {
+                    let $this = $(this);
+                    return {
+                        url: ('/docs/' + this.value + '/view.pdf'),
+                        canSign: 'true' === $this.attr('data-sign')
+                    }
+                }).get();
+                for (let doc of docsToShow) {
+                    if (!doc.canSign) {
+                        $signAllDocsBtn.addClass('disabled');
+                        break;
+                    }
+                }
+
+                currentDocViewIndex = 0;
+                $docViewIframe.attr('src', docsToShow[currentDocViewIndex].url);
+                $docSignBtn.toggleClass('disabled', !docsToShow[currentDocViewIndex].canSign);
+
+                $('#docs-listing').removeClass('hidden');
+                $prevBtn.addClass('disabled');
+                if (docsToShow.length > 1) {
+                    $nextBtn.removeClass('disabled');
+                } else {
+                    $nextBtn.addClass('disabled');
+                }
+            });
+
+            $d.on('click', '#prev-frame', function () {
+                if ($(this).hasClass('disabled')) return;
+                $nextBtn.removeClass('disabled');
+
+                if (currentDocViewIndex > 0) {
+                    currentDocViewIndex--;
+                    $docViewIframe.attr('src', docsToShow[currentDocViewIndex].url);
+                    $docSignBtn.toggleClass('disabled', !docsToShow[currentDocViewIndex].canSign);
+                }
+
+                if (currentDocViewIndex <= 0) {
+                    $prevBtn.addClass('disabled');
+                }
+            });
+            $d.on('click', '#next-frame', function () {
+                if ($(this).hasClass('disabled')) return;
+                $prevBtn.removeClass('disabled');
+
+                if (currentDocViewIndex < docsToShow.length - 1) {
+                    currentDocViewIndex++;
+                    $docViewIframe.attr('src', docsToShow[currentDocViewIndex].url);
+                    $docSignBtn.toggleClass('disabled', !docsToShow[currentDocViewIndex].canSign);
+                }
+                if (currentDocViewIndex >= docsToShow.length - 1) {
+                    $nextBtn.addClass('disabled');
+                }
+            });
+
+            $d.keydown(function(e) {
+                if ($('#docs-listing').hasClass('hidden')) return;
+                if (e.keyCode === 37) {
+                    $('#prev-frame').click();
+                } else if (e.keyCode === 39) {
+                    $('#next-frame').click();
+                }
+            });
+     
+        });
+    </script>
+
+</body>
+</html>

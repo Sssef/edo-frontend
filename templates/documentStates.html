@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+
+    <th:block th:fragment="documentStates">
+        <ul class="st-info">
+            <li th:each="state : ${states}">
+                <div class="st-item__text" th:text="${state.status}">Создан</div>:
+                <div class="st-item__date" th:text="${state.date}"></div>
+            </li>
+        </ul>
+    </th:block>
+
+</body>
+</html>

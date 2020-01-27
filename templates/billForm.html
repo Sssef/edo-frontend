@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <th:block th:fragment="billForm">
+        <form th:action="@{/outgoing/bill}" id="bill-form" class="st-form st-form-side" th:method="${bill != null ? 'PUT' : 'POST'}">
+            <button type="button" class="st-btn__close"><i class="icon-cancel"></i></button>
+
+            <div class="st-form-block">
+                <input type="hidden" name="id" th:if="${bill != null}" th:value="${bill._id}">
+                <div class="st-title">Информация о своей фирме</div>
+                <select name="company" id="companies" data-placeholder="Фирма">
+                    <th:block th:each="company : ${companies}">
+                        <option th:value="${company.inn}" th:text="${company.name}" th:data-address="${company.address}"
+                                th:selected="${bill != null && bill.company.inn == company.inn}"></option>
+                    </th:block>
+                </select>
+                <input type="text" class="st-input" id="address" name="address" placeholder="Адрес" data-dadata-type="ADDRESS" th:value="${bill != null ? bill.address : null}">
+                <input type="text" class="st-input" id="bank" placeholder="Банк" data-dadata-type="BANK" data-dadata-bic="bic" th:value="${bill != null ? bill.bank.name : null}">
+                <input id="bic" name="bic" type="hidden" th:value="${bill != null ? bill.bank.bic : null}">
+                <input type="text" class="st-input" id="bank-account" placeholder="Банковский счёт" name="account" th:value="${bill != null ? bill.account : null}">
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="st-form-block">
+                <div class="st-title">Номер счёта / дата</div>
+                <input type="text" class="st-input" id="bill-number" placeholder="Номер счёта" name="number" th:value="${bill != null? bill.number : null}">
+                <input type="text" class="st-input" id="datepicker" placeholder="Дата" name="date" data-datepicker="dd.mm.yyyy" th:value="${bill != null ? #dates.format(bill.date, 'dd.MM.yyyy') : null}">
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="st-form-block">
+                <div class="st-title">Информация о плательщике</div>
+
+                <input type="text" class="st-input" id="customer" placeholder="Заказчик" data-dadata-type="PARTY" data-dadata-inn="customer-inn" th:value="${bill != null ? bill.partner.name : null}">
+                <input type="hidden" id="customer-inn" name="customer" th:value="${bill != null ? bill.partner.inn : null}">
+
+                <label id="partner-info" for="payer-same-customer" class="st-checkwrap">
+                    <span>Заказчик и плательщик - совпадают</span>
+                    <input id="payer-same-customer" type="checkbox" name="isPayerSameCustomer" th:checked="${bill != null ? bill.isPayerSameCustomer : true}">
+                    <span class="st-checkbox"><i class="icon-ok"></i></span>
+                </label>
+
+                <input type="text" th:classappend="${((bill != null && !bill.isPayerSameCustomer) ? null : 'hidden')}" class="st-input" id="payer" placeholder="Плательщик" data-dadata-type="PARTY" data-dadata-inn="payer-inn" th:value="${((bill != null && !bill.isPayerSameCustomer) ? bill.payer.name : null)}">
+                <input type="hidden" id="payer-inn" name="payer" th:value="${((bill != null && !bill.isPayerSameCustomer) ? bill.payer.inn : null)}">
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="st-form-block" th:with="product = ${bill != null ? bill.products.get(0) : null},
+                                                service = ${bill == null || bill.productType == T(ru.academit.edo.model.docs.ProductType).SERVICE}">
+                <div class="st-title">Информация о товаре / услуге</div>
+
+                <label for="product">
+                    <div>Товар</div>
+                    <input type="radio" id="product" name="productType" value="PRODUCT" th:checked="${!service}">
+                    <span class="st-radio"></span>
+                </label>
+                <label for="service">
+                    <div>Услуга</div>
+                    <input type="radio" id="service" name="productType" value="SERVICE" th:checked="${service}">
+                    <span class="st-radio"></span>
+                </label>
+                <input type="text" class="st-input" id="product-name" placeholder="Товар / Услуга" name="product" th:value="${product != null ? product.product : null}">
+                <input type="tel" class="st-input" id="quantity" pattern="^[0-9]+$" placeholder="Количество" name="quantity"
+                       th:value="${!service ? product.get('quantity') : null}" th:classappend="${service ? 'hidden' : ''}">
+                <input type="tel" class="st-input" id="price" pattern="^[0-9]+$" placeholder="Цена" name="amount" th:value="${product != null ? product.amount.value : null}">
+                <select name="nds" id="NDS">
+                    <option value="0" th:selected="${bill == null || bill.nds == 0}">Без НДС</option>
+                    <option value="10" th:selected="${bill != null && bill.nds == 10}">10%</option>
+                    <option value="18" th:selected="${bill != null && bill.nds == 18}">18%</option>
+                </select>
+
+            </div>
+
+            <button type="submit" class="st-btn st-btn__add" th:text="${bill != null ? 'Принять' : 'Создать'}">Создать</button>
+        </form>
+    </th:block>
+</body>
+</html>

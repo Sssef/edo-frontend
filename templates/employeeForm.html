@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <th:block th:fragment="employeeForm">
+        <form th:action="@{/employees}" id="employees-form" class="st-form st-form-side" th:method="${employee != null ? 'PUT' : 'POST'}">
+            <button type="button" class="st-btn__close"><i class="icon-cancel"></i></button>
+
+            <div class="st-form-block">
+                <input type="hidden" name="id" th:if="${employee != null}" th:value="${employee.id}">
+                <input type="email" class="st-input" id="email" name="email"  placeholder="e-mail" th:value="${employee != null ? employee.email : null}" th:disabled="${employee != null}" th:classappend="${employee != null ? 'disabled' : ''}">
+                <input type="text" class="last-name st-input" name="lastName" placeholder="Фамилия" th:value="${employee != null ? employee.lastName : null}">
+                <input type="text" class="first-name st-input" name="firstName" placeholder="Имя" th:value="${employee != null ? employee.firstName : null}">
+                <input type="text" class="middle-name st-input" name="middleName" placeholder="Отчество" th:value="${employee != null ? employee.middleName : null}">
+                <label id="middle-name-label" for="middle-name" class="st-checkwrap">
+                    <span>Нет отчества</span>
+                    <input id="middle-name" type="checkbox">
+                    <span class="st-checkbox"><i class="icon-ok"></i></span>
+                </label>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="st-form-block">
+                <input type="tel" class="st-input" name="phone" id="employee-phone" placeholder="Телефон" th:value="${employee != null ? employee.phone : null}" data-mask="+7 (999) 999-99-99">
+                <input type="tel" class="st-input" name="birthday" id="employee-birthday" placeholder="Дата рождения" th:value="${employee != null ? employee.birthday : null}" data-datepicker="dd.mm.yyyy">
+                <div class="list-wrapper" id="sex-wrapper">
+                    <select id="employee-sex__list" data-placeholder="Пол" name="sex">
+                        <option></option>
+                        <option th:selected="${employee != null && employee.sex == 'MALE'}" value="MALE">Мужчина</option>
+                        <option th:selected="${employee != null && employee.sex == 'FEMALE'}" value="FEMALE">Женщина</option>
+                    </select>
+                </div>
+                <input type="tel" class="st-input" id="employee-address" name="address" placeholder="Адрес" th:value="${employee != null ? employee.address : null}" data-dadata-type="ADDRESS">
+                <input type="tel" class="st-input" id="employee-snils" name="snils" placeholder="СНИЛС" th:value="${employee != null ? employee.snils : null}" data-mask="999-999-999 99">
+                <input type="tel" class="st-input" id="employee-inn" name="inn" placeholder="ИНН" pattern="^[0-9]+$" minlength="12" maxlength="12" th:value="${employee != null ? employee.inn : null}">
+
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="st-form-block">
+                <div class="list-wrapper" id="nationality-wrapper">
+                    <select id="employee-nationality__list" data-placeholder="Гражданство" name="nationality">
+                        <option></option>
+                        <option th:selected="${employee != null && employee.nationality == 'CITIZEN_RF'}" value="CITIZEN_RF">Гражданин РФ</option>
+                        <option th:selected="${employee != null && employee.nationality == 'FOREIGNER'}" value="FOREIGNER">Иностранец</option>
+                    </select>
+                </div>
+                <div class="list-wrapper" id="document-wrapper">
+                    <select id="employee-document__list" data-placeholder="Документ" name="identityDocument">
+                        <option th:selected="${employee != null && employee.identityDocument == 'EMPTY'}" value="EMPTY">--</option>
+                        <option th:selected="${employee != null && employee.identityDocument == 'PASSPORT_RF'}" value="PASSPORT_RF">Паспорт РФ</option>
+                    </select>
+                </div>
+                <div id="document-info">
+                    <input type="tel" class="st-input" id="employee-document-series" name="series" placeholder="Серия" th:value="${employee != null ? employee.series : null}" data-mask="99 99">
+                    <input type="tel" class="st-input" id="employee-document-number" name="number" placeholder="Номер" pattern="^[0-9]+$" minlength="6" maxlength="6" th:value="${employee != null ? employee.number : null}">
+                    <input type="text" class="st-input" id="employee-document-issuedby" name="issuedBy" placeholder="Кем выдан" th:value="${employee !=null ? employee.issuedBy : null}">
+                    <input type="tel" class="st-input" id="employee-document-issued" name="issued" placeholder="Когда выдан" th:value="${employee != null ? employee.issued : null}" data-datepicker="dd.mm.yyyy">
+                </div>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="st-form-block">
+                <input class="st-input position" type="text" name="position" placeholder="Должность" data-autocomplete="true" th:value="${employee != null ? employee.position : null}">
+                <div class="list-wrapper" id="role-wrapper">
+                    <select id="employee-role__list" data-placeholder="Права доступа" name="role">
+                        <th:block th:each="role : ${roles}">
+                            <option th:value="${role.id}" th:text="${role.name}" th:selected="${employee != null && role.id == roleId}"></option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="st-btn st-btn__add" th:text="${employee != null ? 'Принять' : 'Добавить'}">Добавить</button>
+        </form>
+    </th:block>
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<HTML>
+<HEAD>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <TITLE>Create XML Signature, Verify and get Cert Info</TITLE>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <STYLE type="text/css">
+        body {
+            background: #EFEFEF;
+            font: normal 14px/16px Helvetica, Arial, sans-serif;
+        }
+        .wrapper {
+            width: 800px;
+            margin: 50px auto;
+            padding: 50px;
+            border: solid 2px #CCC;
+            border-radius: 10px;
+            -webkit-border-radius: 10px;
+            box-shadow: 0 0 12px 3px #CDCDCD;
+            -webkit-box-shadow: 0 0 12px 3px #CDCDCD;
+            background: #FFF;
+        }
+        label {
+            margin: 0 0 8px;
+        }
+        textarea {
+            width: 700px;
+            border: solid 1px #999;
+            border-radius: 5px;
+            -webkit-border-radius: 5px;
+            height: 340px;
+            font: normal 12px/15px monospace;
+            display: block;
+            margin: 12px 0 12px;
+            box-shadow: 0 0 5px 5px #EFEFEF inset;
+            -webkit-box-shadow: 0 0 5px 5px #EFEFEF inset;
+            padding: 20px;
+            resize: none;
+        }
+        a {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #ACD0EC;
+            border: solid 1px #4C6181;
+            color: #000;
+            font: normal 14px/16px Helvetica, Arial, sans-serif;
+        }
+        a:hover {
+            background: #DAEBF8;
+            cursor: pointer;
+        }
+        .header-block {
+            margin-top: 30px;
+            font: bold 16px/20px Helvetica, Arial, sans-serif;
+        }
+        .border-block {
+            border: solid 2px #999;
+            border-radius: 5px;
+            -webkit-border-radius: 5px;
+            margin: 10px 0 0;
+            padding: 20px 30px;
+            background: #F0F4FF;
+        }
+    </STYLE>
+
+    <script type="text/javascript" src='/js/sks/chrome.js'></script>
+</HEAD>
+<BODY>
+<div class="wrapper">
+    <p class="header-block">Выбор провайдера и информация по сертификату</p>
+    <div id="get_cert_info" class="border-block">
+        <p>
+            <label style="font-weight:bold">Выбор криптопровайдера:</label>
+        <div class="border-block">
+            <select id="CSPList" title="Available providers">
+                <option selected>Нет доступных провайдеров</option>
+            </select>
+        </div>
+        <label style="font-weight:bold">Выбор файлового ключа:</label>
+        <a id="selectKeyButton">Выбрать</a>
+        <span id="key_path">Ключ не выбран</span>
+        </p>
+        <a id="getCertInfoButton">Прочитать сертификат</a>
+        <br/> <br/>
+        <div id="certInfoBlock" style="display: none">
+            <div id="cert_name"></div>
+            <div id="issuer_name"></div>
+            <div id="date_from"></div>
+            <div id="date_to"></div>
+            <div id="CFTCAStamp"></div>
+            <div id="serial"></div>
+            <div id="signature_algorithm"></div>
+            <div id="public_key"></div>
+            <div id="public_key_algorithm"></div>
+            <div id="public_key_length"></div>
+            <div id="subject_key_id"></div>
+            <div id="finger_print_algorithm"></div>
+            <div id="finger_print"></div>
+            <div id="cert"></div>
+        </div>
+    </div>
+
+    <p class="header-block">Подпись XML документа</p>
+    <div id="sign_div" class="border-block">
+        <span id="err_label"></span>
+        <a id="signButton">Подписать</a>
+        <p>
+            <span id="result" style="font-weight:bold">Подписанный XML</span>
+            <textarea id="new_signed_data" title=""></textarea>
+        </p>
+    </div>
+
+    <p class="header-block">Проверка подписи</p>
+    <div id="verify_sign_div" class="border-block">
+        <a id="verifyButton">Проверить</a>
+    </div>
+</div>
+<script type="text/javascript" src='/js/example.js'></script>
+</BODY>
+</HTML>

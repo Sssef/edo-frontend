@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+
+</head>
+<body>
+    <th:block th:fragment="rolesConstructor">
+        <div id="accessLayer"></div>
+
+        <form action="/roles" th:method="${role.get('id') != null ? 'PUT' : 'POST'}" id="role-constructor-form" class="st-form st-form-side">
+            <button type="button" class="st-btn__close"><i class="icon-cancel"></i></button>
+            <input type="hidden" name="id" th:if="${role.get('id') != null}" th:value="${role.id}">
+            <input type="text" name="name" class="st-input" id="roleTitle" placeholder="Название роли" th:value="${role.get('name')}">
+
+            <label for="fullAccess" class="st-checkwrap">
+                <div>Полный доступ</div>
+                <input type="checkbox" name="fullAccess" id="fullAccess">
+                <span class="st-checkbox"><i class="icon-ok"></i></span>
+            </label>
+
+            <div class="separator"></div>
+
+            <div class="docs-action-type" id="actionView">
+                <div class="st-title">Просмотр:</div>
+                <label for="docsViewNone">
+                    <div>Только собственно созданные</div>
+                    <input type="radio" id="docsViewNone" name="docViewType" value="NONE" th:checked="${role.view.value == 'NONE'}">
+                    <span class="st-radio"></span>
+                </label>
+                <label for="docsViewIncoming">
+                    <div>Только входящие</div>
+                    <input type="radio" id="docsViewIncoming" name="docViewType" value="INCOME" th:checked="${role.view.value == 'INCOME'}">
+                    <span class="st-radio"></span>
+                </label>
+                <label for="docsViewOutgoing">
+                    <div>Только исходящие</div>
+                    <input type="radio" name="docViewType" id="docsViewOutgoing" value="OUTCOME" th:checked="${role.view.value == 'OUTCOME'}">
+                    <span class="st-radio"></span>
+                </label>
+                <label for="docsViewAll">
+                    <div>Все</div>
+                    <input type="radio" name="docViewType" id="docsViewAll" value="ALL" th:checked="${role.view.value == 'ALL'}">
+                    <span class="st-radio"></span>
+                </label>
+                <div class="separator"></div>
+            </div>
+
+            <ul class="docs-action-type" id="actionType">
+                <div class="st-title">Действия с документами:</div>
+                <li>
+                    <label for="docsCreate">
+                        <div>Создание</div>
+                        <input type="checkbox" id="docsCreate" name="docActions" value="CREATE" th:checked="${role.get('docActions') != null && #lists.contains(role.docActions, 'CREATE')}">
+                        <span class="st-checkbox"><i class="icon-ok"></i></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label for="docsEdit">
+                        <span>Редактирование</span>
+                        <input type="checkbox" id="docsEdit" name="docActions" class="st-checkbox" value="EDIT" th:checked="${role.get('docActions') != null && #lists.contains(role.docActions, 'EDIT')}">
+                        <span class="st-checkbox"><i class="icon-ok"></i></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label for="docsDelete">
+                        <span>Удаление</span>
+                        <input type="checkbox" class="st-checkbox" id="docsDelete" name="docActions" value="DELETE" th:checked="${role.get('docActions') != null && #lists.contains(role.docActions, 'DELETE')}">
+                        <span class="st-checkbox"><i class="icon-ok"></i></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label for="docsSign">
+                        <div>Подпись</div>
+                        <input type="checkbox" id="docsSign" name="docActions" value="SIGN" th:checked="${role.get('docActions') != null && #lists.contains(role.docActions, 'SIGN')}">
+                        <span class="st-checkbox"><i class="icon-ok"></i></span>
+                    </label>
+                </li>
+
+                <li>
+                    <label for="docsSend">
+                        <div>Отправка</div>
+                        <input type="checkbox" id="docsSend" name="docActions" value="SEND" th:checked="${role.get('docActions') != null && #lists.contains(role.docActions, 'SEND')}">
+                        <span class="st-checkbox"><i class="icon-ok"></i></span>
+                    </label>
+                </li>
+
+                <div class="separator"></div>
+            </ul>
+
+            <ul class="docs-action-type" id="actionExtra">
+                <div class="st-title">Дополнительные ограничения:</div>
+                <li>
+                    <div id="amountRestr" class="list-wrapper">
+                        <select id="amount-type" data-placeholder="По сумме" name="amountSignRestriction">
+                            <option></option>
+                            <option class="not">Нет</option>
+                            <option value="GREATER" th:selected="${(role.get('amountRestriction') != null && role.amountRestriction.sign.value == 'GREATER') ? true : null}">От</option>
+                            <option value="LESS" th:selected="${(role.get('amountRestriction') != null && role.amountRestriction.sign.value == 'LESS') ? true : null}">До</option>
+                        </select>
+                    </div>
+                </li>
+
+                <li th:classappend="${role.get('amountRestriction') != null ? '' : 'hidden'}">
+                    <input th:value="${role.get('amountRestriction') != null ? role.amountRestriction.amount.value : null}"
+                           type="tel" class="st-input amount"
+                           name="amountRestriction" placeholder="Сумма"
+                           pattern="^[0-9]+$">
+                </li>
+
+                <li>
+                    <div id="docTypes" class="list-wrapper">
+                        <select data-placeholder="По типу документа">
+                            <option></option>
+                            <th:block th:each="docType : ${docTypes}">
+                                <option th:text="${docType.name}" th:value="${docType.value}" th:disabled="${docType.get('disabled') == true}"></option>
+                            </th:block>
+                        </select>
+
+                        <ul class="list">
+                            <th:block th:if="${role.get('docTypesRestriction') != null}">
+                                <li class="list-item" th:each="docType : ${role.docTypesRestriction.docTypes}">
+                                    <p th:text="${docType.name}"></p>
+                                    <span class="st-btn__clean"><i class="icon-cancel"></i></span>
+                                    <input type="hidden" name="docTypesRestriction" th:value="${docType.value}">
+                                </li>
+                            </th:block>
+                        </ul>
+                    </div>
+                </li>
+
+                <li th:if="${companies != null && #lists.size(companies) > 1} ">
+                    <div id="companiesRestr" class="list-wrapper">
+                        <select data-placeholder="По компаниям">
+                            <option></option>
+                            <option class="not">Нет</option>
+                            <th:block th:each="company : ${companies}">
+                                 <option th:text="${company.name}" th:value="${company.inn}" th:disabled="${company.get('disabled') == true}"></option>
+                            </th:block>
+                        </select>
+
+                        <ul class="list">
+                            <th:block th:if="${role.get('companiesRestriction') != null}">
+                                <li th:each="company : ${role.companiesRestriction.companies}" class="list-item">
+                                    <p th:text="${company.name}"></p>
+                                    <span class="st-btn__clean"><i class="icon-cancel"></i></span>
+                                    <input type="hidden" name="companiesRestriction" th:value="${company.inn}">
+                                </li>
+                            </th:block>
+                        </ul>
+                    </div>
+                </li>
+
+                <li>
+                    <div id="partnersRestr" class="list-wrapper">
+                        <select name="exceptPartnersRestriction" data-placeholder="Тип ограничения по контрагентам">
+                            <option></option>
+                            <option class="not">Нет</option>
+                            <option class="partner-chosen" th:selected="${(role.get('partnersRestriction') != null && role.partnersRestriction.except == false) ? true : null}" value="false">Только выбранные контрагенты</option>
+                            <option class="partner-except" th:selected="${(role.get('partnersRestriction') != null && role.partnersRestriction.except == true) ? true : null}" value="true">Все кроме выбранных контрагентов</option>
+                        </select>
+                    </div>
+                </li>
+
+                <li class="partner-wrapper" th:classappend="${role.get('partnersRestriction') != null ? '' : 'hidden'}">
+                    <div class="list-wrapper">
+                        <input type="text" id="partner" class="partner st-input" placeholder="По контрагентам" data-dadata-type="PARTY" data-dadata-create-item="true">
+                        <ul class="list">
+                            <th:block th:if="${role.get('partnersRestriction') != null}">
+                                <li class="list-item" th:each="partner : ${role.partnersRestriction.companies}">
+                                    <p th:text="${partner.name}"></p>
+                                    <span class="st-btn__clean"><i class="icon-cancel"></i></span>
+                                    <input type="hidden" name="partnersRestriction" th:value="${partner.inn}">
+                                </li>
+                            </th:block>
+                        </ul>
+                    </div>
+                </li>
+
+            </ul>
+
+            <button class="st-btn" type="submit">Принять</button>
+
+        </form>
+
+    </th:block>
+
+</body>
+</html>

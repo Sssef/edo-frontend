@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <th:block th:include="head :: head"></th:block>
+</head>
+<body>
+    <th:block th:include="header :: header"></th:block>
+    <div class="content-area">
+        <h2 class="content-area__title">Список ролей</h2>
+        <div class="row controls">
+            <button class="st-btn st-btn__new-role">Добавить роль</button>
+            <div id="rolesConstructor" class="form-wrapper"></div>
+        </div>
+
+        <div class="separator"></div>
+
+        <ul class="roles-list">
+            <li th:each="role : ${roles}" class="role">
+                <span class="role-title" th:text="${role.name}"></span>
+                <div class="st-controls__menu-btn">
+                </div>
+                <div class="role-content-wrapper">
+                    <ul class="role-access">
+                        <li class="role-view">
+                            <span>Просмотр:</span>
+                            <div th:text="${role.view.name}"></div>
+                        </li>
+                        <li class="role-actions" th:if="${role.get('docActions') != null}">
+                            <span>Действия:</span>
+                            <ul class="actions-list">
+                                <li th:each="action : ${role.docActions}"
+                                    th:text="#{${'DocAction.' + action}}">
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="role-extra" data-role-extra="extra-action">
+                            <ul>
+                                <span>Ограничения:</span>
+                                <li th:if="${role.get('amountRestriction') != null}">
+                                    <span th:text="${role.amountRestriction.sign.name}"></span>
+                                    <div th:text="${role.amountRestriction.amount.formatWithCurrency}"></div>
+                                </li>
+                                <li th:if="${role.get('docTypesRestriction') != null}">
+                                    <span>По документам:</span>
+                                    <ul>
+                                        <li th:each="docType : ${role.docTypesRestriction.docTypes}" th:text="${docType.name}"></li>
+                                    </ul>
+                                </li>
+                                <li th:if="${role.get('companiesRestriction') != null}">
+                                    <span>По компания:</span>
+                                    <ul>
+                                        <li th:each="company : ${role.companiesRestriction.companies}" th:text="${company.name}"></li>
+                                    </ul>
+                                </li>
+                                <li th:if="${role.get('partnersRestriction') != null}">
+                                    <span>По контрагентам:</span>
+                                    <ul>
+                                        <li th:each="partner : ${role.partnersRestriction.companies}" th:text="${partner.name}" ></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="st-card__controls">
+                        <button class="st-btn st-btn__delete" th:data-role-id="${role.id}" title="Удалить"><i class="icon-trash"></i></button>
+                        <button class="st-btn st-btn__edit" th:data-role-id="${role.id}" title="Редактировать"><i class="icon-pencil"></i></button>
+                    </div>
+                </div>
+
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        $(function() {
+
+            const $d = $(document);
+
+            $d.on('click', '.st-btn__new-role', function (e) {
+                e.preventDefault();
+                ajax('GET', '/roles/form', {}, 'html', function (response) {
+                    $('#rolesConstructor').html(response);
+                });
+            });
+
+            $d.on('click', '.role .st-btn__edit', function(e){
+                e.preventDefault();
+                const id = $(this).data('role-id');
+
+                ajax('PUT', '/roles/form', {id: id}, 'html', function (response) {
+                    $('#rolesConstructor').html(response);
+                }, function(xhr) {
+                    errorMessages(xhr, $(this).closest('.role'));
+                });
+            });
+
+            $d.on('click', '.role .st-btn__delete', function (e) {
+                e.preventDefault();
+
+                const $this = $(this);
+                const roleId = $this.attr('data-role-id');
+
+                ajax('DELETE', '/roles', {id: roleId}, 'json', function () {
+                    $this.closest('.role').remove();
+                }, function(xhr) {
+                    errorMessages(xhr, $this.closest('.role'));
+                });
+            });
+
+            $d.on('change', '#role-constructor-form input:not("#fullAccess, #roleTitle")', function () {
+                $('#fullAccess').prop('checked', false);
+            });
+
+            $d.on('submit', '#role-constructor-form', function (e) {
+                e.preventDefault();
+                const $this = $(this);
+
+                ajax($this.attr('method'), '/roles', $this.serialize(), 'json', function () {
+                    location.reload();
+                    $this.find('.st-btn[type=submit]').prop('disabled', true).addClass('disabled');
+                }, function (xhr) {
+                    errorMessages(xhr, $this);
+                    $this.find('.st-btn[type=submit]').prop('disabled', false).removeClass('disabled');
+                });
+
+            });
+
+            $d.on('click', '.role .st-controls__menu-btn', function () {
+                $(this).closest('.role').toggleClass('role-opened');
+                $(this).siblings('.global-error').fadeOut(200).remove();
+            });
+
+
+            //rolesConstructor scripts
+            $d.on('change', '#docTypes select', function () {
+                let $this = $(this);
+                let optionVal = $(this).val();
+
+                selectedOption($this, "#docTypes", optionVal, 'docTypesRestriction');
+            });
+
+            $d.on('change', '#companiesRestr select', function () {
+                let $this = $(this);
+                let optionVal = $(this).val();
+
+                selectedOption($this, "#companiesRestr", optionVal, 'companiesRestriction');
+            });
+
+            $d.on('click', '#amountRestr .jq-selectbox__dropdown li', function () {
+                showInput($(this),'#amountRestr');
+            });
+
+            $d.on('click', '#partnersRestr .jq-selectbox__dropdown li', function () {
+                showInput($(this), '#partnersRestr');
+            });
+
+            $d.on('click', '#fullAccess', function () {
+                const $this = $(this);
+                const $roleConstructorForm = $('#role-constructor-form');
+                const form = $this.closest('form');
+                let select = $('select');
+
+                if ($this.prop('checked', true)) {
+                    form.find('#actionView #docsViewAll').prop('checked', true);
+                    form.find('#actionType li').each(function () {
+                        $(this).find('input[type="checkbox"]').prop('checked', true);
+                    });
+                    form.find('#actionExtra li').each(function () {
+                        $(this).find('.st-input').val('');
+                    });
+                    form.find('.st-select').val('');
+                    select.val('').trigger('refresh');
+
+                    if ($roleConstructorForm.length) {
+                        $('.list-item').remove();
+                        $('.company__list li, .doc-types__list li').show();
+                    }
+                }
+            });
+
+            $d.on('click', '#docTypes .st-btn__clean', function () {
+                deleteListItem($('#docTypes'), $(this));
+            });
+
+            $d.on('click', '.partner-wrapper .st-btn__clean', function () {
+                deleteListItem($('.partner-wrapper'), $(this));
+            });
+
+            $d.on('click', '#companiesRestr .st-btn__clean', function () {
+                let $companyList = $('.company__list');
+                let dataInn = $(this).parent().data('inn');
+
+                deleteListItem($('#companiesRestr'), $(this));
+
+                $companyList.find("[data-inn='" + dataInn + "']").show();
+            });
+
+            function deleteListItem(select, btn) {
+                let $list = btn.parent();
+                let val = btn.siblings('input').val();
+                let text = btn.siblings('p').text();
+
+                if ($list.hasClass('list-item')) {
+                    $list.remove();
+                }
+
+                select.find('option').each(function () {
+                    if(val === $(this).val()) {
+                        $(this).prop('disabled', false);
+                        select.find('.jq-selectbox__dropdown li').each(function () {
+                            if(text === $(this).text()) {
+                                $(this).removeClass('disabled');
+                            }
+                        });
+
+                    }
+                    select.find('select').trigger('refresh');
+                });
+            }
+
+            function showInput(option, selectId) {
+                if (!option.hasClass('not')) {
+                    $(selectId).parent().next('li').removeClass('hidden');
+                } else if (option.hasClass('not')) {
+                    $(selectId).parent().next('li').addClass('hidden').find('input').val('');
+                    $(selectId).parent().next('li').find('.list li').remove();
+                    $(selectId).find('select').val('').trigger('refresh');
+
+                }
+            }
+
+            function selectedOption(select, selectId, value, name) {
+
+                select.find('option').each(function () {
+                    if ($(this).val() === value) {
+                        $(this).prop('disabled', true);
+
+                        if ($(this).closest(selectId).hasClass('list-wrapper')) {
+                            let txt = $(this).text();
+
+                            if (!$(this).hasClass('not')) {
+                                $(selectId).find('.list').append('' +
+                                    '<li class="list-item">' +
+                                        '<p>'+ txt +'</p>' +
+                                        '<span class="st-btn__clean"><i class="icon-cancel"></i></span>' +
+                                        '<input type="hidden" name="' + name + '" value="'+ value +'">' +
+                                    '</li>');
+                                select.val('');
+
+                            }
+                            else if ($(this).hasClass('not')) {
+                                $(selectId).find('.list li').remove();
+                                select.find('option').attr('disabled', false);
+                                select.val('').trigger('refresh');
+                            }
+                        }
+                    }
+                });
+
+                select.prop('selected', false).trigger('refresh');
+            }
+
+        });
+    </script>
+</body>
+</html>

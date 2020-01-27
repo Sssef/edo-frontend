@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>First test</title>
+    <th:block th:include="head :: head">
+    </th:block>
+</head>
+<body>
+
+    <th:block th:include="header :: header"></th:block>
+    <div class="content-area">
+        <h2 class="content-area__title">Входящие документы</h2>
+
+        <ul class="st-users-list">
+            <li class="document st-card" th:each="doc : ${docs}" th:data-id="${doc._id}">
+                <div class="st-card__info">
+                    <div class="st-check"><input type="checkbox" class="st-check__input" th:value="${doc._id}"></div>
+                    <div class="st-date" th:text="${doc.date}"></div>
+                    <div class="st-status" th:text="${doc.lastState.name}"></div>
+                </div>
+                <ul class="st-card__list">
+                    <li class="st-card__item">
+                        <div class="st-card__item-title" th:text="${doc.company.name}"></div>
+                    </li>
+                    <li class="st-card__item st-card__document">
+                        <i class="icon-attach"></i>
+                        <div class="st-card__item-text">
+
+                            <th:block th:text="${doc.description}">Акт по договору №1</th:block>
+                            <th:block th:if="${doc.get('date') != null}">
+                                от <span class="st-date" th:text="${doc.date}">27.07.2018</span>
+                            </th:block>
+                            <th:block th:if="${doc.get('amount') != null}">
+                                на сумму <span class="st-price" th:text="${doc.amount.format}">520 000 </span> <span
+                                    class="st-currency">&#8381;</span>
+                            </th:block>
+
+                        </div>
+                    </li>
+                </ul>
+                <div class="st-card__menu">
+                    <div class="st-controls__menu-list">
+                        <div class="st-controls__wrapper">
+                        </div>
+                    </div>
+                    <div class="st-controls__menu-btn" th:data-id="${doc.get('_id')}">
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+        <div class="pagination incoming-pagination">
+            <th:block th:if="${paginator != null}">
+                <th:block th:replace="paginator"></th:block>
+            </th:block>
+        </div>
+
+    </div>
+
+</body>
+</html>
